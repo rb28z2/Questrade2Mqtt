@@ -1,0 +1,25 @@
+{
+  "name": "questrade2mqtt",
+  "version": "1.0.0",
+  "description": "A partial bridge between Questrade and a MQTT Broker",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rb28z2/Questrade2Mqtt.git"
+  },
+  "author": "RB28Z2",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/rb28z2/Questrade2Mqtt/issues"
+  },
+  "homepage": "https://github.com/rb28z2/Questrade2Mqtt#readme",
+  "dependencies": {
+    "esm": "^3.2.25",
+    "mqtt": "^4.1.0",
+    "questrade": "^1.1.5"
+  },
+  "devDependencies": {}
+}
