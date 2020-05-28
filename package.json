@@ -19,6 +19,7 @@
   "homepage": "https://github.com/rb28z2/Questrade2Mqtt#readme",
   "dependencies": {
     "esm": "^3.2.25",
+    "lodash": "^4.17.15",
     "mqtt": "^4.1.0",
     "questrade": "^1.1.5"
   },

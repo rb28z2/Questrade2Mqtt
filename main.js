@@ -1,5 +1,6 @@
 import mqtt from 'mqtt'
 import Questrade from 'questrade'
+import * as _ from 'lodash'
 
 if ("MQTT_HOST" in process.env === false) {
     console.error("No MQTT host was provided! Exiting.")
@@ -20,6 +21,7 @@ var client = mqtt.connect(mqtt_options)
 
 client.on('connect', () => {
     console.log("Connected to MQTT")
+    startQuestrade()
 })
 
 // exit if no QT api key was defined
@@ -28,26 +30,30 @@ if ("QUESTRADE_API_KEY" in process.env === false){
     process.exit(1);
 }
 
-var qt = new Questrade(process.env.QUESTRADE_API_KEY)
-const publish_topic = process.env.MQTT_PUBLISH_TOPIC || "questrade/positions/"
-
-qt.on('ready', () => {
-    qt.getPositions((err, response) => {
-        for (var position of response.positions) {
-            const topic = publish_topic + position.symbol +'/'
-            const keys = [
-                'openQuantity',
-                'currentMarketValue',
-                'currentPrice',
-                'averageEntryPrice',
-                'dayPnl',
-                'openPnl',
-                'totalCost'
-            ]
-            for (var key of keys){
-                client.publish(topic + key, position[key].toFixed(2).toString())
+function startQuestrade(){
+    console.log("Connecting to Questrade")
+    var qt = new Questrade(process.env.QUESTRADE_API_KEY)
+    const publish_topic = process.env.MQTT_PUBLISH_TOPIC || "questrade/positions/"
+    
+    qt.on('ready', () => {
+        console.log("Connected to Questrade")
+        qt.getPositions((err, response) => {
+            for (var position of response.positions) {
+                const topic = publish_topic + position.symbol +'/'
+                const keys = [
+                    'openQuantity',
+                    'currentMarketValue',
+                    'currentPrice',
+                    'averageEntryPrice',
+                    'dayPnl',
+                    'openPnl',
+                    'totalCost'
+                ]
+                for (var key of keys){
+                    client.publish(topic + key, position[key].toFixed(2).toString())
+                }
             }
-            
-        }
+            //console.log(_.pick(response.positions, 'currentMarketValue'))
+        })
     })
-})
+}
