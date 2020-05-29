@@ -43,6 +43,27 @@ async function loop(){
 
     console.log("Total Value: " + totalValue)
     client.publish(publish_root + 'totalMarketValue', totalValue.toFixed(2))
+
+    publishPositionDailyPNL(positions)
+}
+
+async function publishPositionDailyPNL(positions){
+    let positionIds = []
+    for (let position of positions){
+        positionIds.push(position.symbolId)
+    }
+    qt.getSymbols(positionIds, (err, response) => {
+        for (let [key, value] of Object.entries(response)) {
+            client.publish(publish_topic + value.symbol + '/prevClose', value.prevDayClosePrice.toString())
+        }
+       // client.publish(publish_topic + )
+    })
+}
+
+function getPreviousClosePrice(symbolId){
+    return new Promise((resolve, reject) => {
+       
+    })
 }
 
 async function getPositions(){
@@ -67,7 +88,7 @@ function publishPositionsToMqtt(positions){
             'totalCost'
         ]
 
-        for (var key of keys) {
+        for (let key of keys) {
             client.publish(topic + key, position[key].toFixed(2).toString())
         }
     }
