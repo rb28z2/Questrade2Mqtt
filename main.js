@@ -41,22 +41,24 @@ async function loop(){
     
     publishPositionsToMqtt(positions)
 
-    console.log("Total Value: " + totalValue)
+    console.log("Total Value: " + totalValue.toFixed(2))
     client.publish(publish_root + 'totalMarketValue', totalValue.toFixed(2))
 
-    publishPositionDailyPNL(positions)
+    publishPositionsDailyPNLPercent(positions)
 }
 
-async function publishPositionDailyPNL(positions){
+async function publishPositionsDailyPNLPercent(positions){
     let positionIds = []
     for (let position of positions){
         positionIds.push(position.symbolId)
     }
     qt.getSymbols(positionIds, (err, response) => {
         for (let [key, value] of Object.entries(response)) {
-            client.publish(publish_topic + value.symbol + '/prevClose', value.prevDayClosePrice.toString())
+            let picked = _.filter(positions, x => x.symbolId === parseInt(key))[0] // find the position with the matching ID
+            let yesterdaysValue = value.prevDayClosePrice * picked.openQuantity
+            let percentDailyPNL = (picked.currentMarketValue - yesterdaysValue) * 100 / yesterdaysValue
+            client.publish(publish_topic + value.symbol + '/prevClosePercent', percentDailyPNL.toString())
         }
-       // client.publish(publish_topic + )
     })
 }
 
