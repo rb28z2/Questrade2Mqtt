@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+    questrade2mqtt:
+        container_name: questradeBridge
+        hostname: questradeBridge
+        image: questrade2mqtt:latest
+        environment:
+            - MQTT_HOST=
+            - MQTT_USER=
+            - MQTT_PASS=
+            - QUESTRADE_API_KEY=
