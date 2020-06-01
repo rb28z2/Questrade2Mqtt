@@ -10,7 +10,7 @@ if ("MQTT_HOST" in process.env === false) {
 
 var mqtt_options = {
     host: process.env.MQTT_HOST,
-    port: process.env.MQTT_PORT || 1883
+    port: parseInt(process.env.MQTT_PORT || 1883)
 }
 
 if ("MQTT_USER" in process.env) {
