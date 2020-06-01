@@ -4,7 +4,7 @@ services:
     questrade2mqtt:
         container_name: questradeBridge
         hostname: questradeBridge
-        image: questrade2mqtt:latest
+        image: rb28z2/questrade2mqtt:latest
         environment:
             - MQTT_HOST=
             - MQTT_USER=
