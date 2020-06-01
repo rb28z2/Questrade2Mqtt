@@ -16,4 +16,5 @@ COPY . /app
 WORKDIR /app
 
 RUN yarn install
-ENTRYPOINT ["yarn start"]
+ENTRYPOINT ["/usr/bin/yarn"]
+CMD ["start"]
