@@ -94,7 +94,6 @@ async function publishPNLs(positions){
     client.publish(publish_root + 'openPNL', openPNL.toFixed(2)) // open PNL for all positions combined
 
     let dailyPNLPercent = dailyPNL * 100 / yesterdayTotalValue;
-    console.log("daily perc" + dailyPNLPercent)
     client.publish(publish_root + 'dailyPNLPercent', dailyPNLPercent.toFixed(2))
 }
 
