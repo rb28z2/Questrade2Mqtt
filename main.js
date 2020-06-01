@@ -61,32 +61,50 @@ async function loop(){
     console.log("Total Value: " + totalValue.toFixed(2))
     client.publish(publish_root + 'totalMarketValue', totalValue.toFixed(2))
 
-    publishPositionsDailyPNLPercent(positions)
+    publishPNLs(positions)
+
 
     if (tsxOpen() || force_refresh) {
         setTimeout(loop, intervalMinutes * 60 * 1000)
     }
 }
 
-async function publishPositionsDailyPNLPercent(positions){
+async function publishPNLs(positions){
     let positionIds = []
+    let dailyPNL = 0
+    let openPNL = 0
+    let yesterdayTotalValue = 0
+
     for (let position of positions){
         positionIds.push(position.symbolId)
+        dailyPNL += position.dayPnl
+        openPNL += position.openPnl
     }
-    qt.getSymbols(positionIds, (err, response) => {
-        for (let [key, value] of Object.entries(response)) {
-            let picked = _.filter(positions, x => x.symbolId === parseInt(key))[0] // find the position with the matching ID
-            let yesterdaysValue = value.prevDayClosePrice * picked.openQuantity
-            let percentDailyPNL = (picked.currentMarketValue - yesterdaysValue) * 100 / yesterdaysValue
-            client.publish(publish_topic + value.symbol + '/prevClosePercent', percentDailyPNL.toString())
-        }
-    })
+
+    let symbols = await getSymbols(positionIds)
+    for (let [key, value] of symbols) {
+        let picked = _.filter(positions, x => x.symbolId === parseInt(key))[0] // find the position with the matching ID
+        let yesterdaysValue = value.prevDayClosePrice * picked.openQuantity
+        yesterdayTotalValue += yesterdaysValue
+        let percentDailyPNL = (picked.currentMarketValue - yesterdaysValue) * 100 / yesterdaysValue
+        client.publish(publish_topic + value.symbol + '/prevClosePercent', percentDailyPNL.toString()) // per position PNL daily
+    }
+    
+    client.publish(publish_root + 'dailyPNL', dailyPNL.toFixed(2)) // daily PNL $ for all positions combined
+    client.publish(publish_root + 'openPNL', openPNL.toFixed(2)) // open PNL for all positions combined
+
+    let dailyPNLPercent = dailyPNL * 100 / yesterdayTotalValue;
+    console.log("daily perc" + dailyPNLPercent)
+    client.publish(publish_root + 'dailyPNLPercent', dailyPNLPercent.toFixed(2))
 }
 
-function getPreviousClosePrice(symbolId){
+async function getSymbols(positionIds) {
     return new Promise((resolve, reject) => {
-       
+        qt.getSymbols(positionIds, (err, response) => {
+            resolve(Object.entries(response))
+        })
     })
+
 }
 
 async function getPositions(){
