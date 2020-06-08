@@ -54,7 +54,8 @@ function tsxOpen(){
 
 async function loop(){
     if (tsxOpen() || force_refresh) {
-        setTimeout(update_all, intervalMinutes * 60 * 1000)
+        update_all()
+        setTimeout(loop, intervalMinutes * 60 * 1000)
     } else {
         setTimeout(loop, intervalMinutes * 3 * 60 * 1000)
     }
