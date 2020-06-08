@@ -37,6 +37,7 @@ var client = mqtt.connect(mqtt_options)
 client.on('connect', async () => {
     console.log("Connected to MQTT")
     await initQuestrade()
+    update_all()
     loop()
 })
 
@@ -52,6 +53,14 @@ function tsxOpen(){
 }
 
 async function loop(){
+    if (tsxOpen() || force_refresh) {
+        setTimeout(update_all, intervalMinutes * 60 * 1000)
+    } else {
+        setTimeout(loop, intervalMinutes * 3 * 60 * 1000)
+    }
+}
+
+async function update_all(){
     console.log(moment().toISOString() + ": refreshing...")
     let positions = await getPositions()
     let totalValue = getTotalMarketValue(positions)
@@ -62,11 +71,6 @@ async function loop(){
     client.publish(publish_root + 'totalMarketValue', totalValue.toFixed(2))
 
     publishPNLs(positions)
-
-
-    if (tsxOpen() || force_refresh) {
-        setTimeout(loop, intervalMinutes * 60 * 1000)
-    }
 }
 
 async function publishPNLs(positions){
